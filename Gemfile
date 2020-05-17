@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
@@ -19,15 +21,21 @@ gem 'puma', '~> 4.1'
 # Use Active Storage variant
 # gem 'image_processing', '~> 1.2'
 
+# Devise JWT for authentication
+gem 'devise', '~> 4.7.1'
+gem 'devise-jwt', '~> 0.6.0'
+
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
 
 # Use Rack CORS for handling Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible
-# gem 'rack-cors'
+gem 'rack-cors', '~> 1.1.1'
 
 group :development, :test do
-  gem 'pry'
-  gem 'rspec-rails'
+  gem 'dotenv-rails', '~> 2.7.5'
+  gem 'factory_bot_rails', '~> 5.2.0'
+  gem 'faker', '~> 2.11.0'
+  gem 'pry', '~> 0.13.1'
 end
 
 group :development do
@@ -37,5 +45,9 @@ group :development do
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
 
+group :test do
+  gem 'rspec-rails', '~> 4.0.0'
+end
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
-gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
+gem 'tzinfo-data', platforms: %i[mingw mswin x64_mingw jruby]
