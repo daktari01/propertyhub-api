@@ -58,7 +58,6 @@ jobs:
             DEVISE_SECRET_KEY: "I_am_a_secret_key^&#(#^"
           command: |
             bundle exec rake db:migrate
-            bundle exec rake db:structure:load
       # Run rspec in parallel
       - ruby/rspec-test
 
