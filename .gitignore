@@ -28,3 +28,6 @@
 
 # Ignore the environment variable
 .env.development.local
+
+# Ignore the coverage folder
+coverage

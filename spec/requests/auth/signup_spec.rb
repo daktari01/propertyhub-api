@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe 'POST /signup', type: :request do
@@ -20,7 +22,7 @@ RSpec.describe 'POST /signup', type: :request do
     end
 
     it 'returns a new user' do
-      expect { subject }.to change(User, :count).by(1) 
+      expect { subject }.to change(User, :count).by(1)
     end
 
     it 'returns JWT token in authorization header' do

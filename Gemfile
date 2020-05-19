@@ -46,8 +46,11 @@ group :development do
 end
 
 group :test do
+  gem 'coveralls', '~> 0.7.1', require: false
   gem 'rspec-rails', '~> 4.0.0'
   gem 'rspec_junit_formatter', '~> 0.4.1'
+  gem 'rubocop', '~> 0.83.0'
+  gem 'simplecov', '~> 0.18.5'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
