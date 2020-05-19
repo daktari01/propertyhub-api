@@ -1,0 +1,9 @@
+{
+  "name": "propertyhub-api",
+  "version": "1.0.0",
+  "description": "Rails API for propertyhub",
+  "main": "index.js",
+  "repository": "git@github.com:daktari01/propertyhub-api.git",
+  "author": "James Dindi <dindijjames@gmail.com>",
+  "license": "MIT"
+}
