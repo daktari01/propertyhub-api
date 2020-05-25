@@ -32,15 +32,18 @@ gem 'bootsnap', '>= 1.4.2', require: false
 gem 'rack-cors', '~> 1.1.1'
 
 group :development, :test do
+  gem 'brakeman', '~> 4.8.2'
   gem 'dotenv-rails', '~> 2.7.5'
   gem 'factory_bot_rails', '~> 5.2.0'
   gem 'faker', '~> 2.11.0'
+  gem 'fasterer', '~> 0.8.3'
   gem 'pry', '~> 0.13.1'
 end
 
 group :development do
   gem 'listen', '~> 3.2'
-  # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
+  # Spring speeds up development by keeping your application running in the background.
+  # Read more: https://github.com/rails/spring
   gem 'spring'
   gem 'spring-watcher-listen', '~> 2.0.0'
 end
