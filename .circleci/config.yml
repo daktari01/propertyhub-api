@@ -1,21 +1,11 @@
 version: 2.1
-
 orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
-
-jobs:
-  build:
-    docker:
-      - image: cimg/ruby:2.7-node
-    steps:
-      - checkout
-      - ruby/install-deps
-      # Store bundle cache
-      - node/install-packages:
-          pkg-manager: yarn
-          cache-key: "yarn.lock"
-  test:
+executors:
+  default:
+    override:
+      - RAILS_ENV=test bundle exec rspec -r rspec_junit_formatter --format RspecJunitFormatter -o $CIRCLE_TEST_REPORTS/rspec/junit.xml
     parallelism: 3
     docker:
       - image: cimg/ruby:2.7-node
@@ -31,6 +21,20 @@ jobs:
       PGUSER: circleci-demo-ruby
       PGPASSWORD: ""
       RAILS_ENV: test
+
+jobs:
+  build:
+    docker:
+      - image: cimg/ruby:2.7-node
+    steps:
+      - checkout
+      - ruby/install-deps
+      # Store bundle cache
+      - node/install-packages:
+          pkg-manager: yarn
+          cache-key: "yarn.lock"
+  test:
+    executor: default
     steps:
       - checkout
       - ruby/install-deps
@@ -45,7 +49,6 @@ jobs:
           command: bundle exec rails db:schema:load --trace
       # Run rspec in parallel
       - ruby/rspec-test
-
 workflows:
   version: 2
   build_and_test:
