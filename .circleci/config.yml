@@ -1,124 +1,152 @@
-version: 2.1
-orbs:
-  ruby: circleci/ruby@1.0
-  node: circleci/node@2
-override:
-  - RAILS_ENV=test bundle exec rspec -r rspec_junit_formatter --format RspecJunitFormatter -o $CIRCLE_TEST_REPORTS/rspec/junit.xml
-parallelism: 3
-references:
-  container_config: &container_config
-    docker:
-      - image: cimg/ruby:2.7-node
-      - image: circleci/postgres:9.5-alpine
-        environment:
-          POSTGRES_USER: circleci-demo-ruby
-          POSTGRES_DB: propertyhub_api_test
-          POSTGRES_PASSWORD: ""
-    environment:
-      BUNDLE_JOBS: "3"
-      BUNDLE_RETRY: "3"
-      PGHOST: 127.0.0.1
-      PGUSER: circleci-demo-ruby
-      PGPASSWORD: ""
-      RAILS_ENV: test
+version: 2.0
 jobs:
   build:
+    environment:
+      CC_TEST_REPORTER_ID: 2e4e7db53880ddf074bfa6dbb42884e29df445ec5ff29fe709b6468ceb36dd34
     docker:
-      - image: cimg/ruby:2.7-node
+      - image: "mileschou/xdebug:7.3"
+    working_directory: ~/repo
     steps:
       - checkout
-      - ruby/install-deps
-      # Store bundle cache
-      - node/install-packages:
-          pkg-manager: yarn
-          cache-key: "yarn.lock"
       - run:
-          name:  Download cc-test-reporter
+          name: Setup dependencies
           command: |
-            mkdir -p tmp/
-            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
-            chmod +x ./tmp/cc-test-reporter
-      - persist_to_workspace:
-          root: tmp
-          paths:
-            - cc-test-reporter
-  test:
-    <<: *container_config
-    steps:
-      - checkout
-      - ruby/install-deps
-      - node/install-packages:
-          pkg-manager: yarn
-          cache-key: "yarn.lock"
+            sudo composer self-update
+            composer install -n --prefer-dist
       - run:
-          name: Wait for DB
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+          name: Setup Code Climate test-reporter
+          command: |
+          # download test reporter as a static binary
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
       - run:
-          name: Database setup
-          command: bundle exec rails db:schema:load --trace
-      # Run rspec in parallel
-      - run: 
           name: Run tests
           command: |
-            bundle exec rake
-            ./tmp/cc-test-reporter format-coverage -t simplecov -o tmp/codeclimate.*.json coverage/.resultset.json
-      - persist_to_workspace:
-          root: tmp
-          paths: 
-            - codeclimate.*.json
-      - ruby/rspec-test
-  upload-coverage:
-    <<: *container_config
-    environment: 
-      - CC_TEST_REPORTER_ID: 2e4e7db53880ddf074bfa6dbb42884e29df445ec5ff29fe709b6468ceb36dd34
-    steps:
-      - attach_workspace:
-          at: ./tmp
-      - run:
-          name: Upload coverage results to Code Climate
-          command: |
-            ./tmp/cc-test-reporter sum-coverage --output - codeclimate.*.json | ./cc-test-reporter upload-coverage --debug --input -
-  rubocop:
-    <<: *container_config
-    steps:
-      - checkout
-      - ruby/install-deps
-      - run:
-          name: Rubocop
-          command: bundle exec rubocop
-  brakeman:
-    <<: *container_config
-    steps:
-      - checkout
-      - ruby/install-deps
-      - run:
-          name: Brakeman
-          command: bundle exec brakeman
-  fasterer:
-    <<: *container_config
-    steps:
-      - checkout
-      - ruby/install-deps
-      - run:
-          name: Fasterer
-          command: bundle exec fasterer
-workflows:
-  version: 2
-  build_and_test:
-    jobs:
-      - build
-      - test:
-          requires:
-            - build
-      - upload-coverage:
-          requires:
-            - test
-      - rubocop:
-          requires:
-            - build
-      - brakeman:
-          requires:
-            - build
-      - fasterer:
-          requires:
-            - build
+            sudo docker-php-ext-enable xdebug
+            ./cc-test-reporter before-build
+            sudo vendor/bin/phpunit --coverage-clover clover.xml
+            ./cc-test-reporter after-build --coverage-input-type clover --exit-code $?
+# version: 2.1
+# orbs:
+#   ruby: circleci/ruby@1.0
+#   node: circleci/node@2
+# override:
+#   - RAILS_ENV=test bundle exec rspec -r rspec_junit_formatter --format RspecJunitFormatter -o $CIRCLE_TEST_REPORTS/rspec/junit.xml
+# parallelism: 3
+# references:
+#   container_config: &container_config
+#     docker:
+#       - image: cimg/ruby:2.7-node
+#       - image: circleci/postgres:9.5-alpine
+#         environment:
+#           POSTGRES_USER: circleci-demo-ruby
+#           POSTGRES_DB: propertyhub_api_test
+#           POSTGRES_PASSWORD: ""
+#     environment:
+#       BUNDLE_JOBS: "3"
+#       BUNDLE_RETRY: "3"
+#       PGHOST: 127.0.0.1
+#       PGUSER: circleci-demo-ruby
+#       PGPASSWORD: ""
+#       RAILS_ENV: test
+# jobs:
+#   build:
+#     docker:
+#       - image: cimg/ruby:2.7-node
+#     steps:
+#       - checkout
+#       - ruby/install-deps
+#       # Store bundle cache
+#       - node/install-packages:
+#           pkg-manager: yarn
+#           cache-key: "yarn.lock"
+#       - run:
+#           name:  Download cc-test-reporter
+#           command: |
+#             mkdir -p tmp/
+#             curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./tmp/cc-test-reporter
+#             chmod +x ./tmp/cc-test-reporter
+#       - persist_to_workspace:
+#           root: tmp
+#           paths:
+#             - cc-test-reporter
+#   test:
+#     <<: *container_config
+#     steps:
+#       - checkout
+#       - ruby/install-deps
+#       - node/install-packages:
+#           pkg-manager: yarn
+#           cache-key: "yarn.lock"
+#       - run:
+#           name: Wait for DB
+#           command: dockerize -wait tcp://localhost:5432 -timeout 1m
+#       - run:
+#           name: Database setup
+#           command: bundle exec rails db:schema:load --trace
+#       # Run rspec in parallel
+#       - run: 
+#           name: Run tests
+#           command: |
+#             bundle exec rake
+#             ./tmp/cc-test-reporter format-coverage -t simplecov -o tmp/codeclimate.*.json coverage/.resultset.json
+#       - persist_to_workspace:
+#           root: tmp
+#           paths: 
+#             - codeclimate.*.json
+#       - ruby/rspec-test
+#   upload-coverage:
+#     <<: *container_config
+#     environment: 
+#       - CC_TEST_REPORTER_ID: 2e4e7db53880ddf074bfa6dbb42884e29df445ec5ff29fe709b6468ceb36dd34
+#     steps:
+#       - attach_workspace:
+#           at: ./tmp
+#       - run:
+#           name: Upload coverage results to Code Climate
+#           command: |
+#             ./tmp/cc-test-reporter sum-coverage --output - codeclimate.*.json | ./cc-test-reporter upload-coverage --debug --input -
+#   rubocop:
+#     <<: *container_config
+#     steps:
+#       - checkout
+#       - ruby/install-deps
+#       - run:
+#           name: Rubocop
+#           command: bundle exec rubocop
+#   brakeman:
+#     <<: *container_config
+#     steps:
+#       - checkout
+#       - ruby/install-deps
+#       - run:
+#           name: Brakeman
+#           command: bundle exec brakeman
+#   fasterer:
+#     <<: *container_config
+#     steps:
+#       - checkout
+#       - ruby/install-deps
+#       - run:
+#           name: Fasterer
+#           command: bundle exec fasterer
+# workflows:
+#   version: 2
+#   build_and_test:
+#     jobs:
+#       - build
+#       - test:
+#           requires:
+#             - build
+#       - upload-coverage:
+#           requires:
+#             - test
+#       - rubocop:
+#           requires:
+#             - build
+#       - brakeman:
+#           requires:
+#             - build
+#       - fasterer:
+#           requires:
+#             - build
