@@ -2,7 +2,6 @@ version: 2.1
 orbs:
   ruby: circleci/ruby@1.0
   node: circleci/node@2
-
 override:
   - RAILS_ENV=test bundle exec rspec -r rspec_junit_formatter --format RspecJunitFormatter -o $CIRCLE_TEST_REPORTS/rspec/junit.xml
 parallelism: 3
@@ -22,7 +21,6 @@ references:
       PGUSER: circleci-demo-ruby
       PGPASSWORD: ""
       RAILS_ENV: test
-
 jobs:
   build:
     docker:
@@ -50,11 +48,44 @@ jobs:
           command: bundle exec rails db:schema:load --trace
       # Run rspec in parallel
       - ruby/rspec-test
+  rubocop:
+    <<: *container_config
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Rubocop
+          command: bundle exec rubocop
+  brakeman:
+    <<: *container_config
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Brakeman
+          command: bundle exec brakeman
+  fasterer:
+    <<: *container_config
+    steps:
+      - checkout
+      - ruby/install-deps
+      - run:
+          name: Fasterer
+          command: bundle exec fasterer
 workflows:
   version: 2
   build_and_test:
     jobs:
       - build
       - test:
+          requires:
+            - build
+      - rubocop:
+          requires:
+            - build
+      - brakeman:
+          requires:
+            - build
+      - fasterer:
           requires:
             - build
