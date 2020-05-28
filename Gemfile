@@ -46,7 +46,9 @@ group :development do
 end
 
 group :test do
+  gem 'coveralls', '~> 0.7.1', require: false
   gem 'rspec-rails', '~> 4.0.0'
+  gem 'travis', '~> 1.8.13'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem

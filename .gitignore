@@ -28,3 +28,4 @@
 
 # Ignore the environment variable
 .env.development.local
+coverage/
