@@ -25,6 +25,9 @@ gem 'puma', '~> 4.1'
 gem 'devise', '~> 4.7.1'
 gem 'devise-jwt', '~> 0.6.0'
 
+# URL validator
+gem 'validate_url', '~> 1.0.11'
+
 # Reduces boot times through caching; required in config/boot.rb
 gem 'bootsnap', '>= 1.4.2', require: false
 
@@ -46,7 +49,11 @@ group :development do
 end
 
 group :test do
+  gem 'coveralls', '~> 0.7.1', require: false
   gem 'rspec-rails', '~> 4.0.0'
+  gem 'shoulda-matchers', '~> 4.3.0'
+  gem 'simplecov', '~> 0.18.5', require: false 
+  gem 'travis', '~> 1.8.13'
 end
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
