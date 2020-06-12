@@ -7,7 +7,7 @@ class RegistrationsController < Devise::RegistrationsController
       sign_in(resource)
       head :created
     else
-    render_resource(resource)
+      render_resource(resource)
     end
   end
 end

@@ -10,6 +10,10 @@ Rails.application.routes.draw do
                 sessions: 'sessions',
                 registrations: 'registrations'
               }
-  # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
-  root to: 'home#index'
+  namespace :api do
+    namespace :v1 do
+      root to: 'home#index'
+      resources :properties
+    end
+  end
 end
