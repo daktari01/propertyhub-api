@@ -25,6 +25,9 @@ gem 'puma', '~> 4.1'
 gem 'devise', '~> 4.7.1'
 gem 'devise-jwt', '~> 0.6.0'
 
+# Serializier for JSON data
+gem 'active_model_serializers', '~> 0.10.10'
+
 # URL validator
 gem 'validate_url', '~> 1.0.11'
 

@@ -1,8 +1,8 @@
 require 'rails_helper'
 
-RSpec.describe 'POST /login', type: :request do
+RSpec.describe 'POST /users/login', type: :request do
   let(:user) { create(:user) }
-  let(:url) { '/login' }
+  let(:url) { '/users/login' }
   let(:params) do
     {
       user: {
@@ -42,8 +42,8 @@ RSpec.describe 'POST /login', type: :request do
   end
 end
 
-RSpec.describe 'DELETE /logout', type: :request do
-  let(:url) { '/logout' }
+RSpec.describe 'DELETE /users/logout', type: :request do
+  let(:url) { '/users/logout' }
 
   it 'returns 204, no content' do
     delete url

@@ -1,7 +1,7 @@
 module Api::V1
   class PropertiesController < ApplicationController
     before_action :set_property, only: [:show, :update, :destroy]
-    # before_action :authenticate_user, except: %i[index show]
+    before_action :authenticate_user!, except: %i[index show]
     respond_to :json
   
     def index
